@@ -2,14 +2,10 @@
 import iziToast from "izitoast";
 // Додатковий імпорт стилів
 import "izitoast/dist/css/iziToast.min.css";
-// Описаний у документації
-import SimpleLightbox from "simplelightbox";
-// Додатковий імпорт стилів
-import "simplelightbox/dist/simple-lightbox.min.css";
 import { createGalleryMarkup } from './render-functions.js';
+import { lightbox } from '../main.js';
 
 const API_KEY = '42334631-07f239856d3b6a49db441bfb9';
-
 export function fetchImages(query) {
     const loader = document.querySelector('.loader');
     loader.style.display = 'block';
@@ -30,6 +26,7 @@ export function fetchImages(query) {
                 });
             } else {
                 createGalleryMarkup(data.hits);
+                lightbox.refresh();
             }
         })
         .catch(error => {
