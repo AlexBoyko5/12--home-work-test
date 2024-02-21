@@ -7,13 +7,13 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 export const lightbox = new SimpleLightbox('.gallery a');
 const form = document.querySelector('#search-form');
 const input = document.querySelector('#search-input');
-let query = ''; // Глобальная переменная для хранения запроса пользователя
-let page = 1; // Глобальная переменная для хранения текущей страницы
+let query = ''
+let page = 1;
 
-form.addEventListener('submit', (event) => {
-    query = input.value.trim();
-    page = 1; // Сброс страницы при новом запросе
+form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    query = input.value.trim();
+    page = 1
     if (!query) {
         iziToast.warning({
             title: 'Warning',
@@ -21,12 +21,61 @@ form.addEventListener('submit', (event) => {
         });
         return;
     }
-    fetchImages(query, page);
+    try {
+        await fetchAndRenderImages();
+    } catch (error) {
+        console.error('Error fetching images:', error);
+        iziToast.error({
+            title: 'Error',
+            message: 'Failed to fetch images. Please try again later.',
+        });
+    }
     input.value = '';
 });
 
-// Обработчик события для кнопки Load more
-document.querySelector('#load-more').addEventListener('click', () => {
+document.querySelector('#load-more').addEventListener('click', async () => {
     page += 1;
-    fetchImages(query, page);
+    try {
+        await fetchAndRenderImages();
+    } catch (error) {
+        console.error('Error fetching images:', error);
+        iziToast.error({
+            title: 'Error',
+            message: 'Failed to fetch images. Please try again later.',
+        });
+    }
 });
+
+async function fetchAndRenderImages() {
+    const loader = document.querySelector('.loader');
+    loader.style.display = 'block';
+    try {
+        const response = await fetchImages(query, page);
+        console.log(response.data);
+        loader.style.display = 'none';
+        if (response.data && response.data.hits && response.data.hits.length > 0) {
+            appendGalleryMarkup(response.data.hits);
+            lightbox.refresh();
+            // Если достигнут конец коллекции, скрываем кнопку Load more и выводим сообщение
+            if (response.data.totalHits <= page * 15) { // <-- Проверка, достигнут ли конец коллекции
+                document.querySelector('#load-more').style.display = 'none'; // <-- Скрываем кнопку Load more
+                iziToast.info({
+                    title: 'Info',
+                    message: "We're sorry, but you've reached the end of search results.", // <-- Выводим сообщение о достижении конца коллекции
+                });
+            }
+        } else {
+            iziToast.info({
+                title: 'Info',
+                message: 'Sorry, there are no images matching your search query. Please try again!',
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching images:', error);
+        loader.style.display = 'none';
+        iziToast.error({
+            title: 'Error',
+            message: 'Failed to fetch images. Please try again later.',
+        });
+    }
+}
