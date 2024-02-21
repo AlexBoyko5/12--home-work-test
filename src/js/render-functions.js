@@ -17,6 +17,5 @@ export function createGalleryMarkup(images) {
             </div>
         `)
     .join('');
-  gallery.innerHTML += createGalleryMarkup; // добавл новую размет к существующей
   lightbox.refresh();
 }
