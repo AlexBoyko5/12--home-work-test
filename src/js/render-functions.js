@@ -2,6 +2,7 @@ import { lightbox } from '../main.js';
 
 export function createGalleryMarkup(images) {
   const gallery = document.querySelector('.gallery');
+  gallery.innerHTML = '';
   const markup = images
     .map((image) => `
       <div class="photo-card">
