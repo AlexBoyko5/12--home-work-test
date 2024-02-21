@@ -42,6 +42,24 @@ button:hover {
   background: #6c8cff;
 }
 
+button#load-more {
+  border-radius: 8px;
+  display: block;
+  margin: 20px auto;
+  padding: 8px 16px;
+  width: 91px;
+  height: 40px;
+  border: none;
+  background: #1eefda;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: #fff;
+  transition: background 0.3s ease;
+}
+
 input {
   width: 272px;
   border-radius: 4px;
