@@ -5,6 +5,8 @@ import { createGalleryMarkup } from './render-functions.js';
 import { lightbox } from '../main.js';
 
 const API_KEY = '42334631-07f239856d3b6a49db441bfb9';
+let totalHits = 0;
+let imagesShown = 0;
 
 export async function fetchImages(query, page) {
     const loader = document.querySelector('.loader');
@@ -13,16 +15,30 @@ export async function fetchImages(query, page) {
     loadMoreButton.style.display = 'none'; // Скрываем кнопку Load more во время загрузки
     try {
         const response = await axios.get(`https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(query)}&image_type=photo&orientation=horizontal&safesearch=true&per_page=15&page=${page}`); // Добавлены параметры per_page и page
+        totalHits = response.data.totalHits;
+        imagesShown += response.data.hits.length;
         console.log(response.data);
         loader.style.display = 'none';
         if (response.data.hits.length === 0) {
-            iziToast.info({
-                title: 'Info',
-                message: 'Sorry, there are no images matching your search query. Please try again!'
-            });
+            if (imagesShown >= totalHits) {
+                iziToast.info({
+                    title: 'Info',
+                    message: 'We are sorry, but you have reached the end of search results.'
+                });
+            } else {
+                iziToast.info({
+                    title: 'Info',
+                    message: 'Sorry, there are no images matching your search query. Please try again!'
+                });
+            }
         } else {
             createGalleryMarkup(response.data.hits);
             lightbox.refresh();
+            setTimeout(() => {
+                const galleryCard = document.querySelector('.photo-card');
+                const cardHeight = galleryCard.getBoundingClientRect().height;
+                window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+            }, 100);
             loadMoreButton.style.display = 'block'; // Показываем кнопку Load more после загрузки
         }
     } catch (error) {
