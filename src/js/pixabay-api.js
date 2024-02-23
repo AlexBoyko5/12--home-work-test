@@ -21,15 +21,15 @@ export async function fetchImages(query, page) {
         console.log(response.data);
         loader.style.display = 'none';
         if (response.data.hits.length === 0) {
-            if (imagesShown >= totalHits) {
-                iziToast.info({
-                    title: 'Info',
-                    message: 'We are sorry, but you have reached the end of search results.'
-                });
-            } else {
+            if (totalHits === 0) {
                 iziToast.info({
                     title: 'Info',
                     message: 'Sorry, there are no images matching your search query. Please try again!'
+                });
+            } else if (imagesShown >= totalHits) {
+                iziToast.info({
+                    title: 'Info',
+                    message: 'We are sorry, but you have reached the end of search results.'
                 });
             }
         } else {
